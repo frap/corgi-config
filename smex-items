@@ -1,0 +1,20 @@
+
+;; ----- smex-history -----
+(
+ dig
+ clojure-mode
+ menu-bar-open
+ recover-this-file
+ imenu
+ cd
+ 5x5
+)
+
+;; ----- smex-data -----
+(
+ (clojure-mode . 2)
+ (imenu . 1)
+ (recover-this-file . 1)
+ (menu-bar-open . 1)
+ (dig . 1)
+)

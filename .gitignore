@@ -1,0 +1,12 @@
+.#projectile-bookmarks.eld
+.emacs.desktop
+.emacs.desktop.lock
+auto-save-list/
+backups/
+custom.el
+local.el
+projectile-bookmarks.eld
+recentf
+straight/
+transient/
+.cache
