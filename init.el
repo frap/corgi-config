@@ -119,8 +119,12 @@
 ;; swap it out with whatever suits you.
 (use-package color-theme-sanityinc-tomorrow
   :config
-  (load-theme 'sanityinc-tomorrow-bright t))
+  ;;(load-theme 'sanityinc-tomorrow-bright t)
+  )
 
+(use-package modus-themes
+  :config
+  (load-theme 'modus-vivendi t))
 ;; Maybe set a nice font to go with it
 (set-frame-font "Iosevka Fixed SS14-14")
 
@@ -162,3 +166,21 @@
 (setq desktop-restore-frames nil)
 (desktop-save-mode 0)
 (menu-bar-mode t)
+
+;; Configure mac modifiers to be what you expect, and turn off the bell noise
+(when (equal system-type 'darwin)
+  (with-no-warnings
+    (setq mac-command-modifier      'super
+          ns-command-modifier       'super
+          mac-option-modifier       'meta
+          ns-option-modifier        'meta
+          mac-right-option-modifier 'none
+          ns-right-option-modifier  'none)))
+
+(setenv "PATH"
+        (concat
+         "/usr/local/bin" path-separator
+         "/Users/agasson/.local/bin" path-separator
+         (getenv "PATH")))
+
+(setq exec-path (append '("/usr/local/bin") (list "." exec-directory)))

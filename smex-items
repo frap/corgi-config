@@ -1,13 +1,13 @@
 
 ;; ----- smex-history -----
 (
+ load-theme
  dig
  clojure-mode
  menu-bar-open
  recover-this-file
  imenu
  cd
- 5x5
 )
 
 ;; ----- smex-data -----
@@ -17,4 +17,5 @@
  (recover-this-file . 1)
  (menu-bar-open . 1)
  (dig . 1)
+ (load-theme . 1)
 )
