@@ -3,10 +3,12 @@
 .emacs.desktop.lock
 auto-save-list/
 backups/
+eln-cache/
 custom.el
 local.el
 projectile-bookmarks.eld
 recentf
 straight/
 transient/
+var/
 .cache

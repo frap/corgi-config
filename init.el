@@ -128,11 +128,6 @@
 ;; Maybe set a nice font to go with it
 (set-frame-font "Iosevka Fixed SS14-14")
 
-;; Enable our "connection indicator" for CIDER. This will add a colored marker
-;; to the modeline for every REPL the current buffer is connected to, color
-;; coded by type.
-(corgi/enable-cider-connection-indicator)
-
 ;; Create a *scratch-clj* buffer for evaluating ad-hoc Clojure expressions. If
 ;; you make sure there's always a babashka REPL connection then this is a cheap
 ;; way to always have a place to type in some quick Clojure expression evals.
@@ -184,3 +179,26 @@
          (getenv "PATH")))
 
 (setq exec-path (append '("/usr/local/bin") (list "." exec-directory)))
+
+(use-package evil-cleverparens
+  :after (evil smartparens)
+  :commands evil-cleverparens-mode
+  :init
+  (add-hook 'clojure-mode-hook #'evil-cleverparens-mode)
+  (add-hook 'emacs-lisp-mode   #'evil-cleverparens-mode)
+  (setq evil-cleverparens-complete-parens-in-yanked-region t)
+  :config
+  (setq evil-cleverparens-use-s-and-S nil)
+  (evil-define-key '(normal visual) evil-cleverparens-mode-map
+    "s" nil
+    "S" nil
+    "{" nil
+    "}" nil
+    "[" nil
+    "]" nil
+    (kbd "<tab>") 'evil-jump-item))
+
+;; Enable our "connection indicator" for CIDER. This will add a colored marker
+;; to the modeline for every REPL the current buffer is connected to, color
+;; coded by type.
+(corgi/enable-cider-connection-indicator)
