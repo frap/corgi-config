@@ -63,6 +63,11 @@
     (corkey/load-and-watch)))
 
 ;; Load other useful packages you might like to use
+;; mac os X PATH
+
+(use-package exec-path-from-shell
+  :config
+  (exec-path-from-shell-initialize))
 
 ;; Powerful Git integration. Corgi already ships with a single keybinding for
 ;; Magit, which will be enabled if it's installed (`SPC g g' or `magit-status').
@@ -172,14 +177,6 @@
           mac-right-option-modifier 'none
           ns-right-option-modifier  'none)))
 
-(setenv "PATH"
-        (concat
-         "/usr/local/bin" path-separator
-         "/Users/agasson/.local/bin" path-separator
-         (getenv "PATH")))
-
-(setq exec-path (append '("/usr/local/bin") (list "." exec-directory)))
-
 (use-package evil-cleverparens
   :after (evil smartparens)
   :commands evil-cleverparens-mode
@@ -201,4 +198,29 @@
 ;; Enable our "connection indicator" for CIDER. This will add a colored marker
 ;; to the modeline for every REPL the current buffer is connected to, color
 ;; coded by type.
-(corgi/enable-cider-connection-indicator)
+;;(corgi/enable-cider-connection-indicator)
+
+;; common-lisp setup
+(use-package sly
+  :mode "\\.lisp\\'"
+  :hook ((lisp-mode . prettify-symbols-mode)
+         (lisp-mode . op/disable-tabs)
+         (lisp-mode . sly-symbol-completion-mode))
+  :custom (inferior-lisp-program "sbcl")
+  :bind (:map sly-mode-map
+              ("C-c C-z" . op/sly-mrepl))
+  :config
+  (defun op/sly-mrepl (arg)
+    "Find or create the first useful REPL for the default connection in a side window."
+    (interactive "P")
+    (save-excursion
+      (sly-mrepl nil))
+    (let ((buf (sly-mrepl--find-create (sly-current-connection))))
+      (if arg
+          (switch-to-buffer buf)
+        (pop-to-buffer buf))))
+
+  (use-package sly-mrepl
+    :straight nil  ;; it's part of sly!
+    :bind (:map sly-mrepl-mode-map
+                ("M-r" . comint-history-isearch-backward))))
