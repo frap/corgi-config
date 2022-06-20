@@ -1,9 +1,48 @@
-;; This is your Emacs init file, it's where all initialization happens. You can
+;;; init.el --- Gas Init -*- lexical-binding: t -*-
+;; This is your Emacs init file, it's where all initialisation happens. You can
 ;; open it any time with `SPC f e i' (file-emacs-init)
 
-;; `bootstrap.el' contains boilerplate code related to package management. You
-;; can follow the same pattern if you want to split out other bits of config.
-(load-file (expand-file-name "bootstrap.el" user-emacs-directory))
+;;; Code:
+(defmacro with-message! (message &rest body)
+  "Execute BODY, with MESSAGE.
+      If body executes without errors, ** MESSAGE... terminé will be displayed."
+  (declare (indent 1))
+  (let ((msg (gensym)))
+    `(let ((,msg ,message))
+       (unwind-protect (progn (message "%s..." ,msg)
+			      ,@body)
+	 (message "** %s... terminé!!" ,msg)))))
+
+;;; Emacs load PATH
+(require 'subr-x)
+;;; Set up extra load paths and functionality
+;; Since we might be running in CI or other environments, stick to
+;; XDG_CONFIG_HOME value if possible.
+;;(let ((*emacs-config-dir* (if-let ((xdg (getenv "XDG_CONFIG_HOME")))
+;;	        	      (expand-file-name "emacs/" xdg)
+;;			    user-emacs-directory)))
+;; Add Lisp directory to `load-path'.
+;; (add-to-list 'load-path (expand-file-name "lisp" *emacs-config-dir*)))
+
+;;; Bootstrap
+;;;
+;;; ============================================================================
+;;; Specify the load paths
+;;; ============================================================================
+;;(require 'config-path)
+
+;;; ============================================================================
+;;; Set up the package manager
+;;; ============================================================================
+;;(require 'init-elpa)
+
+(require 'init-fn)
+
+(defconst *is-gui?*     (display-graphic-p))
+(defconst *is-mac?*     (eq system-type 'darwin))
+(defconst *is-linux?*   (eq system-type 'gnu/linux))
+(defconst *is-termux?*
+  (string-suffix-p "Android" (string-trim (shell-command-to-string "uname -a"))))
 
 ;; What follows is *your* config. You own it, don't be afraid to customize it to
 ;; your needs. Corgi is just a set of packages. Comment out the next section and
@@ -71,10 +110,10 @@
 
 ;; Powerful Git integration. Corgi already ships with a single keybinding for
 ;; Magit, which will be enabled if it's installed (`SPC g g' or `magit-status').
-(use-package magit)
+(require 'init-vcs)
 
 ;; Language-specific packages
-(use-package org)
+(require 'init-org) ;;(use-package org)
 (use-package markdown-mode)
 (use-package yaml-mode)
 (use-package typescript-mode)
@@ -86,16 +125,6 @@
 ;; Color hex color codes so you can see the actual color.
 (use-package rainbow-mode)
 
-;; A hierarchical file browser, included here as an example of how to set up
-;; custom keys, see `user-keys.el' (visit it with `SPC f e k').
-(use-package treemacs
-  :config
-  (setq treemacs-follow-after-init t)
-  (treemacs-project-follow-mode)
-  (treemacs-git-mode 'simple))
-
-(use-package treemacs-evil)
-(use-package treemacs-projectile)
 
 ;; REPL-driven development for JavaScript, included as an example of how to
 ;; configure signals, see `user-signal.el' (visit it with `SPC f e s')
@@ -127,11 +156,12 @@
   ;;(load-theme 'sanityinc-tomorrow-bright t)
   )
 
-(use-package modus-themes
-  :config
-  (load-theme 'modus-vivendi t))
+(require 'init-ui)
+;;(use-package modus-themes
+;;  :config
+;;  (load-theme 'modus-vivendi t))
 ;; Maybe set a nice font to go with it
-(set-frame-font "Iosevka Fixed SS14-14")
+;;(set-frame-font "Iosevka Fixed SS14-14")
 
 ;; Create a *scratch-clj* buffer for evaluating ad-hoc Clojure expressions. If
 ;; you make sure there's always a babashka REPL connection then this is a cheap
@@ -161,11 +191,6 @@
           (lambda ()
             (when (derived-mode-p 'prog-mode)
               (delete-trailing-whitespace))))
-
-;; Enabling desktop-save-mode will save and restore all buffers between sessions
-(setq desktop-restore-frames nil)
-(desktop-save-mode 0)
-(menu-bar-mode t)
 
 ;; Configure mac modifiers to be what you expect, and turn off the bell noise
 (when (equal system-type 'darwin)
@@ -201,26 +226,4 @@
 ;;(corgi/enable-cider-connection-indicator)
 
 ;; common-lisp setup
-(use-package sly
-  :mode "\\.lisp\\'"
-  :hook ((lisp-mode . prettify-symbols-mode)
-         (lisp-mode . op/disable-tabs)
-         (lisp-mode . sly-symbol-completion-mode))
-  :custom (inferior-lisp-program "sbcl")
-  :bind (:map sly-mode-map
-              ("C-c C-z" . op/sly-mrepl))
-  :config
-  (defun op/sly-mrepl (arg)
-    "Find or create the first useful REPL for the default connection in a side window."
-    (interactive "P")
-    (save-excursion
-      (sly-mrepl nil))
-    (let ((buf (sly-mrepl--find-create (sly-current-connection))))
-      (if arg
-          (switch-to-buffer buf)
-        (pop-to-buffer buf))))
-
-  (use-package sly-mrepl
-    :straight nil  ;; it's part of sly!
-    :bind (:map sly-mrepl-mode-map
-                ("M-r" . comint-history-isearch-backward))))
+(require 'init-clisp)

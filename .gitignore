@@ -12,4 +12,6 @@ recentf
 straight/
 transient/
 var/
+versions/
+lisp/
 .cache
